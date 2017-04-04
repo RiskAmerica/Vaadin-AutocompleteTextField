@@ -5,13 +5,24 @@
     <groupId>eu.maxschuster</groupId>
     <artifactId>vaadin-autocompletetextfield-root</artifactId>
     <packaging>pom</packaging>
-    <version>1.0-alpha-5-SNAPSHOT</version>
+    <version>1.0-alpha-5-java7-SNAPSHOT</version>
     <name>AutocompleteTextField Add-on (Root)</name>
 
     <modules>
         <module>vaadin-autocompletetextfield</module>
         <module>vaadin-autocompletetextfield-demo</module>
     </modules>
+
+    <properties>
+        <!-- Build -->
+        <maven.compiler.source>1.7</maven.compiler.source>
+        <maven.compiler.target>1.7</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <!-- Versions -->
+        <vaadin.version>7.7.7</vaadin.version>
+    </properties>
 
     <profiles>
         <profile>

@@ -33,6 +33,7 @@ import com.vaadin.server.Resource;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.shared.Position;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
@@ -134,8 +135,23 @@ public class DemoUI extends UI {
                 .withSuggestionProvider(languageProvider)
                 .withMinChars(1)
                 .withSuggestionLimit(5)
-                .withTextChangeListener(this::onAutocompleteTextChange)
-                .withValueChangeListener(this::onAutocompleteValueChange);
+                .withTextChangeListener(new FieldEvents.TextChangeListener() {
+                    @Override
+                    public void textChange(FieldEvents.TextChangeEvent textChangeEvent) {
+                        onAutocompleteTextChange(textChangeEvent);
+
+                    }
+                })
+                .withValueChangeListener(new Property.ValueChangeListener() {
+                    @Override
+                    public void valueChange(Property.ValueChangeEvent var1) {
+                        onAutocompleteValueChange(var1);
+
+                    }
+                });
+
+
+
 
         l.scrollBehavior.setContainerDataSource(
                 new BeanItemContainer<>(ScrollBehavior.class,
@@ -143,19 +159,31 @@ public class DemoUI extends UI {
 
         l.theme.addItems(Arrays.asList(Themes.values()));
         l.theme.setValue(Themes.VALO);
-        l.theme.addValueChangeListener(this::onThemeValueChange);
+        l.theme.addValueChangeListener(new Property.ValueChangeListener() {
+            @Override
+            public void valueChange(Property.ValueChangeEvent e) {
+                onThemeValueChange(e);
+            }
+        });
 
         l.addIcon.addItems(Arrays.asList(Icons.values()));
         l.addIcon.setValue(Icons.NONE);
 
         l.visible.setValue(true);
-        l.visible.addValueChangeListener(e -> {
-            languageField.setVisible((boolean) e.getProperty().getValue());
+        l.visible.addValueChangeListener(new Property.ValueChangeListener() {
+            @Override
+            public void valueChange(Property.ValueChangeEvent e) {
+                languageField.setVisible((boolean) e.getProperty().getValue());
+            }
         });
 
         l.enabled.setValue(true);
-        l.enabled.addValueChangeListener(e -> {
-            languageField.setEnabled((boolean) e.getProperty().getValue());
+        l.enabled.addValueChangeListener(new Property.ValueChangeListener() {
+            @Override
+            public void valueChange(Property.ValueChangeEvent e) {
+                languageField.setEnabled((boolean) e.getProperty().getValue());
+
+            }
         });
 
         optionsGroup.setItemDataSource(languageField);
@@ -166,20 +194,28 @@ public class DemoUI extends UI {
         optionsGroup.bind(l.scrollBehavior, "scrollBehavior");
         optionsGroup.bind(l.cache, "cache");
 
-        l.apply.addClickListener(e -> {
-            try {
-                optionsGroup.commit();
-            } catch (FieldGroup.CommitException ex) {
-                getLogger().log(Level.SEVERE, null, ex);
-                Notification notification = new Notification(
-                        "Error applying changes!",
-                        Notification.Type.ERROR_MESSAGE);
-                notification.setDelayMsec(2000);
-                notification.show(Page.getCurrent());
+        l.apply.addClickListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent clickEvent) {
+                try {
+                    optionsGroup.commit();
+                } catch (FieldGroup.CommitException ex) {
+                    getLogger().log(Level.SEVERE, null, ex);
+                    Notification notification = new Notification(
+                            "Error applying changes!",
+                            Notification.Type.ERROR_MESSAGE);
+                    notification.setDelayMsec(2000);
+                    notification.show(Page.getCurrent());
+                }
             }
         });
 
-        l.reset.addClickListener(e -> reset());
+        l.reset.addClickListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent e) {
+                reset();
+            }
+        });
 
         optionsGroup.addCommitHandler(new FieldGroup.CommitHandler() {
             @Override
@@ -195,8 +231,12 @@ public class DemoUI extends UI {
             }
         });
 
-        l.windowTest.addClickListener(e -> openTestWindow());
-
+        l.windowTest.addClickListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent clickEvent) {
+                openTestWindow();
+            }
+        });
         l.demoOverlayTest.setSuggestionProvider(languageProvider);
 
     }

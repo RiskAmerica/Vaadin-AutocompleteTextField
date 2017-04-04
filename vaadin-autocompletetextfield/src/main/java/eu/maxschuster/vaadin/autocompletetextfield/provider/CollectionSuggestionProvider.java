@@ -18,13 +18,8 @@ package eu.maxschuster.vaadin.autocompletetextfield.provider;
 import eu.maxschuster.vaadin.autocompletetextfield.AutocompleteQuery;
 import eu.maxschuster.vaadin.autocompletetextfield.AutocompleteSuggestion;
 import eu.maxschuster.vaadin.autocompletetextfield.AutocompleteSuggestionProvider;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+
+import java.util.*;
 
 /**
  * A simple {@link AutocompleteSuggestionProvider} backed by a
@@ -90,24 +85,6 @@ public class CollectionSuggestionProvider implements AutocompleteSuggestionProvi
         refreshSearchList();
     }
 
-    private void validateValues(Collection<String> values) {
-        if (values == null) {
-            throw new NullPointerException("array is null!");
-        }
-    }
-
-    private void validateMatchMode(MatchMode matchMode) {
-        if (matchMode == null) {
-            throw new NullPointerException("matchMode is null!");
-        }
-    }
-
-    private void validateLocale(Locale locale) {
-        if (locale == null) {
-            throw new NullPointerException("locale is null!");
-        }
-    }
-
     /**
      * Copies the given {@link Collection} to a new {@link List}
      *
@@ -124,7 +101,7 @@ public class CollectionSuggestionProvider implements AutocompleteSuggestionProvi
     /**
      * Converts the given {@link List} of {@link String}s to lower case
      *
-     * @param list {@link List} of {@link String}s
+     * @param list   {@link List} of {@link String}s
      * @param locale {@link Locale} used for converting
      * @return {@link List} containing only lower case {@link String}s
      */
@@ -136,6 +113,24 @@ public class CollectionSuggestionProvider implements AutocompleteSuggestionProvi
             lowerCase.set(i, normalCase.toLowerCase(locale));
         }
         return lowerCase;
+    }
+
+    private void validateValues(Collection<String> values) {
+        if (values == null) {
+            throw new NullPointerException("array is null!");
+        }
+    }
+
+    private void validateMatchMode(MatchMode matchMode) {
+        if (matchMode == null) {
+            throw new NullPointerException("matchMode is null!");
+        }
+    }
+
+    private void validateLocale(Locale locale) {
+        if (locale == null) {
+            throw new NullPointerException("locale is null!");
+        }
     }
 
     @Override
@@ -250,8 +245,7 @@ public class CollectionSuggestionProvider implements AutocompleteSuggestionProvi
      *
      * @param matchMode The {@link MatchMode} of this provider.
      * @return this (for method chaining)
-     * @see
-     * #setMatchMode(eu.maxschuster.vaadin.autocompletetextfield.provider.MatchMode)
+     * @see #setMatchMode(eu.maxschuster.vaadin.autocompletetextfield.provider.MatchMode)
      */
     public CollectionSuggestionProvider withMatchMode(MatchMode matchMode) {
         setMatchMode(matchMode);

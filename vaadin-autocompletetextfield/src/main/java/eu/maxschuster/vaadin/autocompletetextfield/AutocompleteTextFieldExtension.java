@@ -31,14 +31,8 @@ import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 import eu.maxschuster.vaadin.autocompletetextfield.shared.AutocompleteTextFieldExtensionState;
 import eu.maxschuster.vaadin.autocompletetextfield.shared.ScrollBehavior;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.StringTokenizer;
+
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -60,12 +54,8 @@ import java.util.logging.Logger;
  * @see <a href="https://github.com/maxschuster/JavaScript-autoComplete">
  * https://github.com/maxschuster/JavaScript-autoComplete</a>
  */
-@JavaScript({
-    "vaadin://addons/autocompletetextfield/dist/AutocompleteTextFieldExtension.min.js"
-})
-@StyleSheet({
-    "vaadin://addons/autocompletetextfield/dist/AutocompleteTextFieldExtension.css"
-})
+@JavaScript({"auto-complete-min.js","AutocompleteTextFieldExtension-min.js"})
+@StyleSheet("AutocompleteTextFieldExtension-min.css")
 public class AutocompleteTextFieldExtension extends AbstractJavaScriptExtension {
 
     private static final long serialVersionUID = 1L;
@@ -81,7 +71,14 @@ public class AutocompleteTextFieldExtension extends AbstractJavaScriptExtension 
 
         }
     };
-
+    /**
+     * The suggestion provider queried for suggesions
+     */
+    protected AutocompleteSuggestionProvider suggestionProvider = null;
+    /**
+     * The max amount of suggestions send to the client-side
+     */
+    private int suggestionLimit = 0;
     /**
      * Receives a search term from the client-side, executes the query and sends
      * the results to the JavaScript method "setSuggestions".
@@ -107,16 +104,6 @@ public class AutocompleteTextFieldExtension extends AbstractJavaScriptExtension 
         }
 
     };
-
-    /**
-     * The max amount of suggestions send to the client-side
-     */
-    private int suggestionLimit = 0;
-
-    /**
-     * The suggestion provider queried for suggesions
-     */
-    protected AutocompleteSuggestionProvider suggestionProvider = null;
 
     /**
      * Construct a new {@link AutocompleteTextFieldExtension}.
@@ -193,7 +180,7 @@ public class AutocompleteTextFieldExtension extends AbstractJavaScriptExtension 
     /**
      * Creates an {@link AutocompleteQuery} from the given search term and the
      * internal {@link #suggestionLimit} and executes it.
-     *
+     * <p>
      * Returns a {@link Set} of {@link AutocompleteSuggestion}s with a
      * predictable iteration order.
      *
@@ -323,7 +310,7 @@ public class AutocompleteTextFieldExtension extends AbstractJavaScriptExtension 
      * Sets the active {@link AutocompleteSuggestionProvider}.
      *
      * @param suggestionProvider The active
-     * {@link AutocompleteSuggestionProvider}.
+     *                           {@link AutocompleteSuggestionProvider}.
      */
     public void setSuggestionProvider(AutocompleteSuggestionProvider suggestionProvider) {
         this.suggestionProvider = suggestionProvider;
@@ -333,10 +320,9 @@ public class AutocompleteTextFieldExtension extends AbstractJavaScriptExtension 
      * Sets the active {@link AutocompleteSuggestionProvider}.
      *
      * @param suggestionProvider The active
-     * {@link AutocompleteSuggestionProvider}.
+     *                           {@link AutocompleteSuggestionProvider}.
      * @return this (for method chaining)
-     * @see
-     * #setSuggestionProvider(eu.maxschuster.vaadin.autocompletetextfield.AutocompleteSuggestionProvider)
+     * @see #setSuggestionProvider(eu.maxschuster.vaadin.autocompletetextfield.AutocompleteSuggestionProvider)
      */
     public AutocompleteTextFieldExtension withSuggestionProvider(AutocompleteSuggestionProvider suggestionProvider) {
         setSuggestionProvider(suggestionProvider);
@@ -419,7 +405,7 @@ public class AutocompleteTextFieldExtension extends AbstractJavaScriptExtension 
      * </p>
      *
      * @param itemAsHtml true if the items are rendered as HTML, false if
-     * rendered as plain text.
+     *                   rendered as plain text.
      */
     public void setItemAsHtml(boolean itemAsHtml) {
         getState().itemAsHtml = itemAsHtml;
@@ -437,7 +423,7 @@ public class AutocompleteTextFieldExtension extends AbstractJavaScriptExtension 
      * </p>
      *
      * @param itemAsHtml true if the items are rendered as HTML, false if
-     * rendered as plain text.
+     *                   rendered as plain text.
      * @return this (for method chaining)
      * @see #setItemAsHtml(boolean)
      */
@@ -575,7 +561,7 @@ public class AutocompleteTextFieldExtension extends AbstractJavaScriptExtension 
      * CSS definition.
      *
      * @param styleName The new style to be added to the dropdown menu
-     * container.
+     *                  container.
      */
     public void addMenuStyleName(String styleName) {
         List<String> styleNames = getState().menuStyleNames;
@@ -603,7 +589,7 @@ public class AutocompleteTextFieldExtension extends AbstractJavaScriptExtension 
      * CSS definition.
      *
      * @param styleNames The new styles to be added to the dropdown menu
-     * container.
+     *                   container.
      * @return this (for method chaining)
      * @see #addMenuStyleName(java.lang.String)
      */
@@ -662,8 +648,7 @@ public class AutocompleteTextFieldExtension extends AbstractJavaScriptExtension 
      *
      * @param scrollBehavior The {@link ScrollBehavior}.
      * @return this (for method chaining)
-     * @see
-     * #setScrollBehavior(eu.maxschuster.vaadin.autocompletetextfield.shared.ScrollBehavior)
+     * @see #setScrollBehavior(eu.maxschuster.vaadin.autocompletetextfield.shared.ScrollBehavior)
      */
     public AutocompleteTextFieldExtension withScrollBehavior(ScrollBehavior scrollBehavior) {
         setScrollBehavior(scrollBehavior);
