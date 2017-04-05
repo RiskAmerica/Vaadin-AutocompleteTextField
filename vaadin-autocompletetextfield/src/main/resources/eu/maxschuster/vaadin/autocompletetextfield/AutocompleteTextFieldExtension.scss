@@ -16,7 +16,7 @@
 // import default styles
 @import "auto-complete.scss";
 
-@mixin AutocompleteTextFieldExtension($style:'autocomplete-suggestions') {
+@mixin AutocompleteTextFieldExtension($style:'autocomplete-suggestion') {
 
   .#{$style} {
     white-space: normal;
