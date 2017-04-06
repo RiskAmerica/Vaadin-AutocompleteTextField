@@ -35,6 +35,7 @@
             return;
         }
 
+
         this.settings = this.buildSettings(options);
         this.eventHandlers = [];
         this.instances = this.createInstances(this.settings.selector);
@@ -55,15 +56,17 @@
                 search = search.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
                 var re = new RegExp("(" + search.split(' ').join('|') + ")", "gi");
                 return '<div class="autocomplete-suggestion" data-val="' + item + '">' +
-                        item.replace(re, "<b>$1</b>") +
-                        '</div>';
+                    item.replace(re, "<b>$1</b>") +
+                    '</div>';
             },
             onSelect: function (e, term, item) {},
-            popupContainer: document.body
+            popupContainer: document.body,
+            classDisabled : 'disabled',
+            classSeparator : 'separator'
         },
         buildSettings: function (options) {
             var settings = {},
-                    defaults = this.defaults;
+                defaults = this.defaults;
             for (var property in defaults) {
                 if (options.hasOwnProperty(property)) {
                     settings[property] = options[property];
@@ -76,31 +79,31 @@
         createInstances: function (selector) {
             var textFields = typeof selector === 'object' ?
                     [selector] : document.querySelectorAll(selector),
-                    instances = [],
-                    settings = this.settings;
+                instances = [],
+                settings = this.settings;
 
             for (var i = 0; i < textFields.length; i++) {
                 var textField = textFields[i],
-                        sc = this.createSuggestionsContainer(),
-                        instance = {
-                            textField: textField,
-                            suggestionsContainer: sc,
-                            autocompleteAttr: textField.getAttribute('autocomplete'),
-                            cache: {},
-                            lastVal: ''
-                        },
-                eventData = {
-                    instance: instance
-                };
+                    sc = this.createSuggestionsContainer(),
+                    instance = {
+                        textField: textField,
+                        suggestionsContainer: sc,
+                        autocompleteAttr: textField.getAttribute('autocomplete'),
+                        cache: {},
+                        lastVal: ''
+                    },
+                    eventData = {
+                        instance: instance
+                    };
 
                 this.live('autocomplete-suggestion', 'mouseleave', this.onMouseLeave, sc, eventData);
                 this.live('autocomplete-suggestion', 'mouseover', this.onMouseOver, sc, eventData);
                 this.live('autocomplete-suggestion', 'mousedown', this.onMouseDown, sc, eventData);
-                
+
                 this.addEvent(textField, 'blur', this.onBlur, eventData);
                 this.addEvent(textField, 'keydown', this.onKeyDown, eventData);
                 this.addEvent(textField, 'keyup', this.onKeyUp, eventData);
-                if (!settings.minChars) { 
+                if (!settings.minChars) {
                     this.addEvent(textField, 'focus', this.onFocus, eventData);
                 }
 
@@ -120,7 +123,7 @@
         },
         getStyle: function (element) {
             return window.getComputedStyle ?
-                    getComputedStyle(element, null) : element.currentStyle;
+                getComputedStyle(element, null) : element.currentStyle;
         },
         isVisible: function (instance) {
             var sc = instance.suggestionsContainer;
@@ -132,9 +135,9 @@
         },
         updateSuggestionsContainer: function (instance, resize, next) {
             var textField = instance.textField,
-                    sc = instance.suggestionsContainer,
-                    rect = textField.getBoundingClientRect(),
-                    style = sc.style;
+                sc = instance.suggestionsContainer,
+                rect = textField.getBoundingClientRect(),
+                style = sc.style;
             style.left = rect.left + (window.pageXOffset || document.documentElement.scrollLeft) + 'px';
             style.top = rect.bottom + (window.pageYOffset || document.documentElement.scrollTop) + 1 + 'px';
             style.width = rect.right - rect.left + 'px'; // outerWidth
@@ -151,7 +154,7 @@
                         sc.scrollTop = 0;
                     } else {
                         var scrTop = sc.scrollTop,
-                                selTop = next.getBoundingClientRect().top - sc.getBoundingClientRect().top;
+                            selTop = next.getBoundingClientRect().top - sc.getBoundingClientRect().top;
                         if (selTop + sc.suggestionHeight - sc.maxHeight > 0) {
                             sc.scrollTop = selTop + sc.suggestionHeight + scrTop - sc.maxHeight;
                         } else if (selTop < 0) {
@@ -163,7 +166,7 @@
         },
         suggest: function (instance, term, suggestions) {
             var sc = instance.suggestionsContainer,
-                    settings = this.settings;
+                settings = this.settings;
             if (settings.cache) {
                 instance.cache[term] = suggestions;
             }
@@ -185,9 +188,13 @@
                 return new RegExp('\\b' + className + '\\b').test(el.className);
             }
         },
+        isSelectable: function (el) {
+            return !(this.hasClass(el,this.settings.classDisabled) || this.hasClass(el,this.settings.classSeparator));
+
+        },
         /**
          * Adds an event listener to the given element that calls the given hander.
-         * 
+         *
          * @param {Element} el The element.
          * @param {String} type Event type. Can be a space separated list of types.
          * @param {Function} handler The handler function.
@@ -196,10 +203,10 @@
          */
         addEvent: function (el, type, handler, data) {
             var self = this,
-                    types = type.split(' '),
-                    listener = function (e) {
-                        return handler.call(self, this, e, data);
-                    };
+                types = type.split(' '),
+                listener = function (e) {
+                    return handler.call(self, this, e, data);
+                };
             for (var i = 0; i < types.length; i++) {
                 var _type = types[i];
                 if (el.attachEvent) {
@@ -217,7 +224,7 @@
         },
         /**
          * Removes an event listener.
-         * 
+         *
          * @param {Element} el The element
          * @param {String} type Event type. Can be a space separated list of types.
          * @param {Function} handler The handler function
@@ -237,20 +244,20 @@
         live: function (elClass, type, cb, context, data) {
             context = context || document;
             var self = this,
-                    listener = function (el2, ev) {
-                        var found, el = ev.target || ev.srcElement;
-                        while (el && !(found = self.hasClass(el, elClass))) {
-                            el = el.parentElement;
-                        }
-                        if (found) {
-                            cb.apply(this, [el, ev, data]);
-                        }
-                    };
+                listener = function (el2, ev) {
+                    var found, el = ev.target || ev.srcElement;
+                    while (el && !(found = self.hasClass(el, elClass))) {
+                        el = el.parentElement;
+                    }
+                    if (found) {
+                        cb.apply(this, [el, ev, data]);
+                    }
+                };
             return this.addEvent(context, type, listener, data);
         },
         destroy: function () {
             var instances = this.instances,
-                    eventHandlers = this.eventHandlers;
+                eventHandlers = this.eventHandlers;
 
             for (var i = 0; i < eventHandlers.length; i++) {
                 var eventHandler = eventHandlers[i];
@@ -259,14 +266,14 @@
 
             for (var k = 0; k < instances.length; k++) {
                 var instance = instances[k],
-                        textField = instance.textField;
+                    textField = instance.textField;
                 if (instance.autocompleteAttr) {
                     textField.setAttribute('autocomplete', instance.autocompleteAttr);
                 } else {
                     textField.removeAttribute('autocomplete');
                 }
                 instance.suggestionsContainer.parentNode.removeChild(
-                        instance.suggestionsContainer);
+                    instance.suggestionsContainer);
                 delete textField.autoCompleteInstance;
             }
         },
@@ -286,28 +293,44 @@
             }
         },
         onMouseOver: function (el, ev, data) {
-            var sc = data.instance.suggestionsContainer,
+            if(this.isSelectable(el))
+            {
+                var sc = data.instance.suggestionsContainer,
                     selected = sc.querySelector('.autocomplete-suggestion.selected');
-            if (selected) {
-                selected.className = selected.className.replace(/\s*selected/, '');
+                if (selected) {
+                    selected.className = selected.className.replace(/\s*selected/, '');
+                }
+                el.className += ' selected';
             }
-            el.className += ' selected';
         },
         onMouseDown: function (el, ev, data) {
             var instance = data.instance,
-                    textField = instance.textField;
+                textField = instance.textField;
             if (this.hasClass(el, 'autocomplete-suggestion')) { // else outside click
-                var v = el.getAttribute('data-val');
-                textField.value = v;
-                this.settings.onSelect(ev, v, el);
-                this.hide(instance);
+
+                if(this.isSelectable(el))
+                {
+                    var v = el.getAttribute('data-val');
+                    textField.value = v;
+                    this.settings.onSelect(ev, v, el);
+                    this.hide(instance);
+                }
+                else
+                {
+                    var sc = instance.suggestionsContainer,
+                        selected = sc.querySelector('.autocomplete-suggestion.selected');
+                    if (selected) {
+                        selected.className = selected.className.replace(/\s*selected/, '');
+                    }
+                    textField.value = '';
+                }
             }
         },
         onBlur: function (el, ev, data) {
             var instance = data.instance,
-                    sc = instance.suggestionsContainer,
-                    overSb = 0,
-                    self = this;
+                sc = instance.suggestionsContainer,
+                overSb = 0,
+                self = this;
             try {
                 overSb = document.querySelector('.autocomplete-suggestions:hover');
             } catch (e) {
@@ -328,31 +351,25 @@
         },
         onKeyDown: function (el, ev, data) {
             var key = window.event ? ev.keyCode : ev.which,
-                    instance = data.instance,
-                    sc = instance.suggestionsContainer,
-                    selected,
-                    self = this;
+                instance = data.instance,
+                sc = instance.suggestionsContainer,
+                selected,
+                self = this;
             // down (40), up (38)
             if ((key === 40 || key === 38) && sc.innerHTML) {
-                var next;
                 selected = sc.querySelector('.autocomplete-suggestion.selected');
-                if (!selected) {
-                    next = (key === 40) ?
-                            sc.querySelector('.autocomplete-suggestion') :
-                            sc.childNodes[sc.childNodes.length - 1]; // first : last
+                var next=(key === 40) ?
+                    this.findDown(data,selected) :
+                    this.findUp(data,selected) ;
+                if (selected) {
+                    selected.className = selected.className.replace(/\s*selected/, '');
+                }
+                if (next) {
                     next.className += ' selected';
                     el.value = next.getAttribute('data-val');
                 } else {
-                    next = (key === 40) ? selected.nextSibling : selected.previousSibling;
-                    if (next) {
-                        selected.className = selected.className.replace(/\s*selected/, '');
-                        next.className += ' selected';
-                        el.value = next.getAttribute('data-val');
-                    } else {
-                        selected.className = selected.className.replace(/\s*selected/, '');
-                        el.value = instance.lastVal;
-                        next = 0;
-                    }
+                    el.value = instance.lastVal;
+                    next = 0;
                 }
                 this.updateSuggestionsContainer(instance, false, next);
                 return false;
@@ -371,9 +388,9 @@
         },
         onKeyUp: function (el, ev, data) {
             var key = window.event ? ev.keyCode : ev.which,
-                    self = this,
-                    settings = self.settings,
-                    instance = data.instance;
+                self = this,
+                settings = self.settings,
+                instance = data.instance;
             if (!key || (key < 35 || key > 40) && key !== 13 && key !== 27) {
                 var val = instance.textField.value;
                 if (val.length >= settings.minChars) {
@@ -410,6 +427,47 @@
         onFocus: function (el, ev, data) {
             data.instance.lastVal = '\n';
             this.onKeyUp.call(this, el, ev, data);
+        },
+        findDown: function(data, selected){
+            var instance = data.instance,
+                sc = instance.suggestionsContainer;
+            var total = sc.childNodes.length;
+            if(!selected)
+            {
+                for(var i=0; i < total ;i++){
+                    if(this.isSelectable(sc.childNodes[i])){
+                        return sc.childNodes[i];
+                    }
+                }
+                return null;
+            }
+            var next=selected.nextSibling;
+            while(next && !this.isSelectable(next))
+            {
+                next=next.nextSibling;
+            }
+            return next && this.isSelectable(next) ? next : null;
+
+        },
+        findUp: function(data, selected){
+            var instance = data.instance,
+                sc = instance.suggestionsContainer;
+            var total = sc.childNodes.length-1;
+            if(!selected)
+            {
+                for(var i=total; i >=0 ;i--){
+                    if(this.isSelectable(sc.childNodes[i])){
+                        return sc.childNodes[i];
+                    }
+                }
+                return null;
+            }
+            var previous=selected.previousSibling;
+            while(previous && !this.isSelectable(previous))
+            {
+                previous=previous.previousSibling;
+            }
+            return previous && this.isSelectable(previous) ? previous : null;
         }
     };
 
